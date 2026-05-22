@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>11/9 Asistencia y Pagos</title>
+    <title>11-9 Asistencia y Pagos</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -159,13 +159,13 @@
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCcjAZZnfjheX9s9qyZzKdua80aCKlhZrA",
-            authDomain: "asistencia-11/9.firebaseapp.com",
-            projectId: "asistencia-11/9",
-            storageBucket: "asistencia-11/9.firebasestorage.app",
+            authDomain: "asistencia-11-9.firebaseapp.com",
+            projectId: "asistencia-11-9",
+            storageBucket: "asistencia-11-9.firebasestorage.app",
             messagingSenderId: "965527629930",
             appId: "1:965527629930:web:ff0a0680bea61b04b65a13",
             measurementId: "G-SYHE29L9H3",
-            databaseURL: "https://asistencia-11/9-default-rtdb.firebaseio.com"
+            databaseURL: "https://asistencia-11-9-default-rtdb.firebaseio.com"
         };
  
         let db, docRef;
@@ -183,10 +183,10 @@
             if (typeof firebase !== 'undefined') {
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.database();
-                docRef = db.ref('11/9/asistencia');
+                docRef = db.ref('11-9/asistencia');
                 
                 // LEER LA ÚLTIMA SEMANA GUARDADA EN ESTE NAVEGADOR
-                const ultimaSemana = localStorage.getItem('11/9_ultima_semana');
+                const ultimaSemana = localStorage.getItem('11-9_ultima_semana');
                 if (ultimaSemana !== null) {
                     semOff = parseInt(ultimaSemana, 10) || 0;
                 }
@@ -226,7 +226,7 @@
             status.className = 'loading';
             
             // GUARDAR LA SEMANA ACTUAL EN EL NAVEGADOR
-            localStorage.setItem('11/9_ultima_semana', semOff);
+            localStorage.setItem('11-9_ultima_semana', semOff);
 
             docRef.set({ personal, asistencia, costosConfig })
                 .then(() => {
@@ -243,7 +243,7 @@
  
         function guardarSilencioso() {
             // TAMBIÉN ACTUALIZA LA SEMANA EN EL GUARDADO SILENCIOSO
-            localStorage.setItem('11/9_ultima_semana', semOff);
+            localStorage.setItem('11-9_ultima_semana', semOff);
             if(docRef) docRef.set({ personal, asistencia, costosConfig }).catch(console.error);
         }
  
