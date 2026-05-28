@@ -73,6 +73,7 @@
         .premio-table td { font-size: 11px; padding: 8px 5px; border-bottom: 1px solid #2a2a2a; }
         .premio-table .gran-total-row td { background: #1a2a1a; color: var(--verde); font-weight: bold; font-size: 12px; }
         .premio-preview { margin-top: 16px; border-radius: 8px; overflow: hidden; border: 1px solid var(--borde); max-height: 250px; overflow-y: auto; }
+        .premio-preview-header { background: #1e1e1e; padding: 10px 12px; font-size: 11px; color: #fff; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -360,20 +361,23 @@
         }
 
         function generarRecibosPDF() {
-            const selec = Array.from(document.querySelectorAll('.chk-recibo:checked'));
-            if(!selec.length) return alert('Seleccioná a alguien');
+            const seleccionados = Array.from(document.querySelectorAll('.chk-recibo:checked'));
+            if(seleccionados.length === 0) { alert('Seleccioná a alguien'); return; }
             let sabadoInicial = getSabadoPrevio(new Date()); sabadoInicial.setDate(sabadoInicial.getDate() + semOff * 7);
             let v = new Date(sabadoInicial); v.setDate(sabadoInicial.getDate() + 6);
             let fV = `${v.getDate().toString().padStart(2,'0')}/${(v.getMonth()+1).toString().padStart(2,'0')}/${v.getFullYear()}`;
-            const cont = document.createElement('div');
-            let h = '<style>.card{width:100%;height:62mm;margin-bottom:5mm;border:1px dashed #444;padding:5mm;box-sizing:border-box;page-break-inside:avoid;}.linea{border-bottom:1px dotted #000;font-weight:bold;}</style>';
-            selec.forEach((chk, i) => {
+            
+            const contenedor = document.createElement('div');
+            let html = `<style>.recibo-card{width:100%;height:62mm;margin-bottom:5mm;border:1px dashed #444;padding:5mm;box-sizing:border-box;page-break-inside:avoid;}.linea{border-bottom:1px dotted #000;font-weight:bold;}.hoja-a4{page-break-after:always;}</style>`;
+            
+            seleccionados.forEach((chk, i) => {
                 let monto = parseFloat(chk.getAttribute('data-monto')).toLocaleString('es-AR', {minimumFractionDigits:2});
-                h += `<div class="card"><div style="text-align:center; font-weight:bold; margin-bottom:5px;">Recibo de Dinero</div><table style="width:100%; font-size:12px;"><tr><td><b>Fecha:</b> ${fV}</td><td style="text-align:right;"><b>De:</b> IIBR Ingeniería SRL</td></tr></table><div style="margin-top:10px;"><b>Nombre:</b> <span class="linea">${chk.value}</span></div><div style="margin-top:5px;"><b>La suma de:</b> <span class="linea">$ ${monto}</span></div><div style="margin-top:5px;"><b>En concepto de:</b> <span class="linea">Mano de obra de hormigón armado para la obra: 11 de Septiembre de 1888 2919</span></div><table style="width:100%; margin-top:15px; font-size:11px;"><tr><td style="border-top:1px solid #000; text-align:center;">Firma</td><td style="width:10px;"></td><td style="border-top:1px solid #000; text-align:center;">DNI</td></tr></table></div>`;
-                if((i+1)%4 === 0) h += '<div style="page-break-after:always;"></div>';
+                html += `<div class="recibo-card"><div style="text-align:center; font-weight:bold; margin-bottom:5px;">Recibo de Dinero</div><table style="width:100%; font-size:12px;"><tr><td><b>Fecha:</b> ${fV}</td><td style="text-align:right;"><b>De:</b> IIBR Ingeniería SRL</td></tr></table><div style="margin-top:10px;"><b>Nombre:</b> <span class="linea">${chk.value}</span></div><div style="margin-top:5px;"><b>La suma de:</b> <span class="linea">$ ${monto}</span></div><div style="margin-top:5px;"><b>En concepto de:</b> <span class="linea">Mano de obra de hormigón armado para la obra: 11 de Septiembre de 1888 2919</span></div><table style="width:100%; margin-top:15px; font-size:11px;"><tr><td style="border-top:1px solid #000; text-align:center;">Firma</td><td style="width:10px;"></td><td style="border-top:1px solid #000; text-align:center;">DNI</td></tr></table></div>`;
+                if((i+1)%4 === 0) html += '<div class="hoja-a4"></div>';
             });
-            cont.innerHTML = h; document.getElementById('recibos-overlay').style.display = 'none';
-            html2pdf().set({filename: `Recibos_${fV.replace(/\//g,'-')}.pdf`, jsPDF: {format: 'a4'}}).from(cont).save();
+            contenedor.innerHTML = html; document.getElementById('recibos-overlay').style.display = 'none';
+            const opt = { filename: `Recibos_${fV.replace(/\//g,'-')}.pdf`, jsPDF: {format: 'a4'}, html2canvas: {scale: 2} };
+            html2pdf().set(opt).from(contenedor).save();
         }
 
         function abrirSelectorAnio() { document.getElementById('input-anio-pdf').value = new Date().getFullYear(); document.getElementById('anio-overlay').style.display = 'flex'; }
@@ -416,6 +420,15 @@
             document.getElementById('premio-preview').style.display = 'block';
         }
         function generarPDFPremios(ini, fin) { ejecutarExportacionPDF(document.getElementById('premio-preview'), `premios_${ini}_${fin}.pdf`); }
+
+        function generarPDF(tipo) {
+            actualizarTablas();
+            let origenId = tipo === 'semanal' ? 't0' : 't1';
+            let titulo = tipo === 'semanal' ? 'Reporte Semanal' : 'Reporte Mensual';
+            const contenedor = document.createElement('div');
+            contenedor.innerHTML = `<h2>${titulo}</h2>` + document.getElementById(origenId).innerHTML;
+            ejecutarExportacionPDF(contenedor, `reporte_${tipo}.pdf`);
+        }
 
         function ejecutarExportacionPDF(el, name) {
             const clon = el.cloneNode(true);
